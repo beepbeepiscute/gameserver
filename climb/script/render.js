@@ -37,7 +37,7 @@ function loadImage(img, sx, sy, sw, sh) {
 export const BG_tile_imgs = { isLoaded: false };
 
 const BGimg = new Image();
-BGimg.src = "/climb/Assets/Image/BG.png";
+BGimg.src = "./Assets/Image/BG.png";
 
 BGimg.onload = () => {
     let index = 0;
