@@ -1,0 +1,1 @@
+export class Player{constructor(t="cuptain",r=0,c=0){this.character=t,this.x=r,this.y=c}move(t="North"){}jump(t=1,r="North"){}}

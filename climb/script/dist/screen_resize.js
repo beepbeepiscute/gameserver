@@ -1,0 +1,1 @@
+"use strict";const canvas=document.getElementById("screen"),SCREEN_SIZE_X=15,SCREEN_SIZE_Y=12,TILE_SIZE=44;function resizeCanvas(){const n=window.innerWidth/660,e=window.innerHeight/528,i=Math.min(n,e);canvas.width=Math.floor(660*i),canvas.height=Math.floor(528*i)}window.addEventListener("resize",resizeCanvas),resizeCanvas();
