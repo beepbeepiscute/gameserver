@@ -1,15 +1,1 @@
-const keys = {};
-window.addEventListener("keydown", (e) => {
-    keys[e.code] = true;
-});
-window.addEventListener("keyup", (e) => {
-    keys[e.code] = false;
-});
-window.addEventListener("blur", () => {
-    for (const k in keys) {
-        keys[k] = false;
-    }
-});
-export function isKeyDown(code) {
-    return keys[code] === true;
-}
+const keys={};window.addEventListener("keydown",e=>{keys[e.code]=!0}),window.addEventListener("keyup",e=>{keys[e.code]=!1}),window.addEventListener("blur",()=>{for(const e in keys)keys[e]=!1});export function isKeyDown(e){return!0===keys[e]}
