@@ -1,1 +1,211 @@
-import{BG_tile_imgs,DrawTile,clearScreen,Dialog_tile_imgs,addText,removeText,replaceText,drawTexts,applyRenderState}from"./render.js";import{Map}from"./map.js";import{Player}from"./player.js";const gameSetting={boostmode:!1},player=new Player,camera={x:0,y:0},map=new Map;function drawMap(e,t,a=0,r=0){for(const[i,o]of Object.entries(t)){const t=parseInt(i,16);if(!(t>12))for(let i=e.x-7;i<=e.x+7;i++){const e=o[i];if("number"==typeof e)DrawTile(BG_tile_imgs[e],i+a,t+r);else if(null!==e&&"object"==typeof e){const o=e.id,s=e.xflip,l=e.yflip;if("number"!=typeof o)continue;DrawTile(BG_tile_imgs[o],i+a,t+r,s,l)}}}}function drawDialog(e="base"){let t;if("base"==e)t={8:[10,0,4,4,4,4,4,4,4,4,4,4,4,1,10],9:[10,7,8,8,8,8,8,8,8,8,8,8,8,5,10],A:[10,7,8,8,8,8,8,8,8,8,8,8,8,5,10],B:[10,2,6,6,6,6,6,6,6,6,6,6,6,3,10]};else if("setting"==e)t={};else{if("charSelect"!=e)return;t={}}for(const[e,a]of Object.entries(t)){const t=parseInt(e,16);t>12||a.forEach((e,a)=>{DrawTile(Dialog_tile_imgs[e],a-7,t)})}}let dialogScoremodel="0 4 4 4 1 #n 2 6 6 6 3",lastTime=performance.now(),tick=0,base_start_uuid=addText("   [시작]",-5,8.9,.65),base_char_uuid=addText("   [캐릭터]",-5,9.7,.65),base_setting_uuid=addText("   [설정]",-5,10.5,.65),score_uuid=addText("Score : N/A",4,-10,.65),select="start",dialogscreen="base",gameStartAnimated=!1,dialogEndY=.5,dialogScoreYpos=-10;function onKeyDown(e){"ArrowUp"==e.key?"base"==dialogscreen&&("start"==select?select="setting":"char"==select?select="start":"setting"==select&&(select="char")):"ArrowDown"==e.key?"base"==dialogscreen&&("start"==select?select="char":"char"==select?select="setting":"setting"==select&&(select="start")):"z"==e.key&&"base"==dialogscreen&&"start"==select&&(dialogscreen="gameStart",player.start(map.data),gameStartAnimated=!0,removeText(base_start_uuid),removeText(base_char_uuid),removeText(base_setting_uuid))}function gameLoop(e){if(requestAnimationFrame(gameLoop),lastTime=e,tick++,gameStartAnimated&&(dialogScoreYpos+=.05*(dialogEndY-dialogScoreYpos),Math.abs(dialogEndY-dialogScoreYpos)<.01&&(dialogScoreYpos=dialogEndY,gameStartAnimated=!1)),tick%2==0&&!gameSetting.boostmode)return;clearScreen(),applyRenderState(),drawMap(camera,map.data),player.CharacterDraw();const t=dialogScoremodel.split(" ");let a=0,r=0;t.forEach(e=>{if("#"===e.slice(0,1))"n"===e.slice(1,2)&&(a=0,r+=1);else{const t=parseInt(e);DrawTile(Dialog_tile_imgs[t],3+a,dialogScoreYpos+r),a+=1}}),player.is_start||(drawDialog(),"base"==dialogscreen&&("start"==select?DrawTile(Dialog_tile_imgs[9],-5.3,8.7):"char"==select?DrawTile(Dialog_tile_imgs[9],-5.3,9.5):"setting"==select&&DrawTile(Dialog_tile_imgs[9],-5.3,10.3))),replaceText(score_uuid,`Score : ${player.height}`,3.85,dialogScoreYpos+.75,.5),drawTexts()}window.addEventListener("keydown",onKeyDown),requestAnimationFrame(gameLoop);
+import { BG_tile_imgs, DrawTile, clearScreen, Dialog_tile_imgs, addText, removeText, replaceText, drawTexts, applyRenderState } from "./render.js";
+import { Map } from "./map.js";
+import { Player } from "./player.js";
+const gameSetting = {
+    boostmode: false
+};
+const player = new Player();
+const camera = { x: 0, y: 0 };
+const map = new Map();
+function drawMap(camera, mapdata, Xoffset = 0, Yoffset = 0) {
+    for (const [y, Ydata] of Object.entries(mapdata)) {
+        const numY = parseInt(y, 16);
+        if (numY > 12)
+            continue;
+        for (let x = camera.x - 7; x <= camera.x + 7; x++) {
+            const tile = Ydata[x];
+            if (typeof tile === "number") {
+                DrawTile(BG_tile_imgs[tile], x + Xoffset, numY + Yoffset);
+            }
+            else if (tile !== null && typeof tile === "object") {
+                const id = tile.id;
+                const xflip = tile.xflip;
+                const yflip = tile.yflip;
+                if (typeof id !== "number")
+                    continue;
+                DrawTile(BG_tile_imgs[id], x + Xoffset, numY + Yoffset, xflip, yflip);
+            }
+        }
+    }
+}
+function drawDialog(type = "base") {
+    let dialogdata;
+    const base = {
+        "8": [10, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 10],
+        "9": [10, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 10],
+        "A": [10, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 10],
+        "B": [10, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 10]
+    };
+    const setting = {};
+    const charSelect = {};
+    if (type == "base")
+        dialogdata = base;
+    else if (type == "setting")
+        dialogdata = setting;
+    else if (type == "charSelect")
+        dialogdata = charSelect;
+    else
+        return;
+    for (const [y, Ydata] of Object.entries(dialogdata)) {
+        const numY = parseInt(y, 16);
+        if (numY > 12)
+            continue;
+        Ydata.forEach((value, index) => {
+            DrawTile(Dialog_tile_imgs[value], index - 7, numY);
+        });
+    }
+}
+let dialogScoremodel = "0 4 4 4 1 #n 2 6 6 6 3";
+let lastTime = performance.now();
+let base_start_uuid = addText(`   [시작]`, -5, 8.9, 0.65);
+let base_char_uuid = addText(`   [캐릭터]`, -5, 9.7, 0.65);
+let base_setting_uuid = addText(`   [설정]`, -5, 10.5, 0.65);
+let score_uuid = addText('Score : N/A', 4, -10, 0.65);
+let select = "start";
+let screen_type = "base";
+let gameStartAnimated = false;
+let dialogEndY = 0.5;
+let dialogScoreYpos = -10;
+let renderAcc = 0;
+function start() {
+    screen_type = "gameStart";
+    player.start(map.data);
+    gameStartAnimated = true;
+    removeText(base_start_uuid);
+    removeText(base_char_uuid);
+    removeText(base_setting_uuid);
+}
+function ArrowUp() {
+    switch (screen_type) {
+        case "base":
+            switch (select) {
+                case "start":
+                    select = "setting";
+                    break;
+                case "char":
+                    select = "start";
+                    break;
+                case "setting":
+                    select = "char";
+                    break;
+            }
+            break;
+        default: return;
+    }
+}
+function ArrowDown() {
+    switch (screen_type) {
+        case "base":
+            switch (select) {
+                case "start":
+                    select = "char";
+                    break;
+                case "char":
+                    select = "setting";
+                    break;
+                case "setting":
+                    select = "start";
+                    break;
+                default: return;
+            }
+            break;
+        default: return;
+    }
+}
+function ArrowLeft() { }
+function ArrowRight() { }
+function Enter() {
+    switch (screen_type) {
+        case "base":
+            switch (select) {
+                case "start":
+                    start();
+                    break;
+                default: return;
+            }
+            break;
+        default: return;
+    }
+}
+function onKeyDown(event) {
+    switch (event.key) {
+        case "ArrowUp":
+            ArrowUp();
+            break;
+        case "ArrowDown":
+            ArrowDown();
+            break;
+        case "ArrowLeft":
+            ArrowLeft();
+            break;
+        case "ArrowRight":
+            ArrowRight();
+            break;
+        case "z":
+        case "Enter":
+            Enter();
+            break;
+    }
+}
+window.addEventListener("keydown", onKeyDown);
+function gameLoop(time) {
+    requestAnimationFrame(gameLoop);
+    const dt = (time - lastTime) / 1000;
+    lastTime = time;
+    if (gameStartAnimated) {
+        const lerpSpeed = 0.05;
+        dialogScoreYpos += (dialogEndY - dialogScoreYpos) * lerpSpeed;
+        if (Math.abs(dialogEndY - dialogScoreYpos) < 0.01) {
+            dialogScoreYpos = dialogEndY;
+            gameStartAnimated = false;
+        }
+    }
+    const targetFPS = gameSetting.boostmode ? 60 : 30;
+    renderAcc += dt;
+    const frameTime = 1 / targetFPS;
+    if (renderAcc < frameTime)
+        return;
+    renderAcc -= frameTime;
+    clearScreen();
+    applyRenderState();
+    drawMap(camera, map.data);
+    player.CharacterDraw();
+    const submodel = dialogScoremodel.split(" ");
+    let xoffset = 0;
+    let yoffset = 0;
+    submodel.forEach((value) => {
+        if (value.slice(0, 1) === "#") {
+            if (value.slice(1, 2) === "n") {
+                xoffset = 0;
+                yoffset += 1;
+            }
+        }
+        else {
+            const idx = parseInt(value);
+            DrawTile(Dialog_tile_imgs[idx], 3 + xoffset, dialogScoreYpos + yoffset);
+            xoffset += 1;
+        }
+    });
+    if (!player.is_start) {
+        drawDialog();
+        switch (screen_type) {
+            case "base":
+                switch (select) {
+                    case "start":
+                        DrawTile(Dialog_tile_imgs[9], -5.3, 8.7);
+                        break;
+                    case "char":
+                        DrawTile(Dialog_tile_imgs[9], -5.3, 9.5);
+                        break;
+                    case "setting":
+                        DrawTile(Dialog_tile_imgs[9], -5.3, 10.3);
+                        break;
+                }
+                break;
+            default: return;
+        }
+    }
+    replaceText(score_uuid, `Score : ${player.height}`, 3.85, dialogScoreYpos + 0.75, 0.5);
+    drawTexts();
+}
+requestAnimationFrame(gameLoop);
