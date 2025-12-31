@@ -1,6 +1,7 @@
 import { BG_tile_imgs, DrawTile, clearScreen, Dialog_tile_imgs, addText, removeText, replaceText, drawTexts, applyRenderState } from "./render.js";
 import { Map } from "./map.js";
 import { Player } from "./player.js";
+console.clear();
 const gameSetting = {
     boostmode: false
 };
@@ -24,6 +25,11 @@ function drawMap(camera, mapdata, Xoffset = 0, Yoffset = 0) {
                 if (typeof id !== "number")
                     continue;
                 DrawTile(BG_tile_imgs[id], x + Xoffset, numY + Yoffset, xflip, yflip);
+            }
+            else if (typeof tile == "string") {
+                if (tile == "path") {
+                    DrawTile(BG_tile_imgs[274], x + Xoffset, numY + Yoffset);
+                }
             }
         }
     }
@@ -69,7 +75,7 @@ let dialogScoreYpos = -10;
 let renderAcc = 0;
 function start() {
     screen_type = "gameStart";
-    player.start(map.data);
+    map.update(player.start(map.data, camera) || camera);
     gameStartAnimated = true;
     removeText(base_start_uuid);
     removeText(base_char_uuid);

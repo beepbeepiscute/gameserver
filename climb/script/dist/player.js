@@ -68,12 +68,12 @@ export class Player {
         this.hp = this.Basic[this.character].hp;
         this.model = this.Basic[this.character].Model.walk[0];
     }
-    start(mapdata) {
+    start(mapdata, camera) {
         this.is_start = true;
         this.model = this.Basic[this.character].Model.climb[0];
-        this.move(mapdata);
+        return this.move(mapdata, camera);
     }
-    move(mapdata, dir = "North") {
+    move(mapdata, camera, dir = "North") {
         if (!this.is_start)
             return;
         const postile = mapdata[this.y.toString(16)][this.x];
@@ -81,7 +81,8 @@ export class Player {
             case "North":
                 const moveTile = mapdata[(this.y - 1).toString(16)][this.x];
                 if (typeof moveTile == "number") {
-                    if (moveTile in tiles.path) {
+                    if (tiles.path.includes(moveTile)) {
+                        return { x: camera.x++, y: camera.y };
                     }
                 }
         }

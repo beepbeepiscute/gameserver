@@ -1,1 +1,0 @@
-const keys={};window.addEventListener("keydown",e=>{keys[e.code]=!0}),window.addEventListener("keyup",e=>{keys[e.code]=!1}),window.addEventListener("blur",()=>{for(const e in keys)keys[e]=!1});export function isKeyDown(e){return!0===keys[e]}
